@@ -5,6 +5,7 @@ See assignment-02.md for details.
 from collections import defaultdict
 import math
 
+
 #### Iterative solution
 def parens_match_iterative(mylist):
     """
@@ -22,7 +23,7 @@ def parens_match_iterative(mylist):
     >>>parens_match_iterative(['('])
     False
     """
-    ### TODO
+
     return iterate(parens_update, 0, mylist) == 0
     ###
 
@@ -42,22 +43,38 @@ def parens_update(current_output, next_input):
     ###TODO
     if current_output == -math.inf:  # in an invalid state; carry it forward
         return current_output
-    if next_input == '(':            # new open parens 
+    if next_input == '(':  # new open parens
         return current_output + 1
-    elif next_input == ')':          # new close parens
-        if current_output <= 0:      # close before an open -> invalid
+    elif next_input == ')':  # new close parens
+        if current_output <= 0:  # close before an open -> invalid
             return -math.inf
-        else:                        # valid
+        else:  # valid
             return current_output - 1
-    else:                            # ignore non-parens input
+    else:  # ignore non-parens input
         return current_output
+
+
     ###
+def iterate(f, id_, a):
+    """
+    Generic iterate function.
 
+    Params:
+      f.....function to apply
+      id_...initial value
+      a.....list to iterate over
 
-
+    Returns:
+      Final accumulated value
+    """
+    output = id_
+    for item in a:
+        output = f(output, item)
+    return output
 
 
 #### Scan solution
+
 
 def parens_match_scan(mylist):
     """
@@ -76,10 +93,27 @@ def parens_match_scan(mylist):
     False
     
     """
-    ###TODO
+
+    # Apply scan function with the plus function
+
+    def plus(x, y):
+        return x + y
+
     history, last = scan(plus, 0, list(map(paren_map, mylist)))
+
+    # Check if the final sum is 0 and the minimum prefix sum is non-negative
     return last == 0 and reduce(min_f, 0, history) >= 0
-    ###
+
+
+def reduce(f, lst, id_):
+    """
+    reduce function.
+    """
+    result = lst
+    for elem in id_:
+        result = f(result, elem)
+    return result
+
 
 def scan(f, id_, a):
     """
@@ -88,10 +122,9 @@ def scan(f, id_, a):
     We saw a more efficient version in class. You can assume
     the more efficient version is used for analyzing work/span.
     """
-    return (
-            [reduce(f, id_, a[:i+1]) for i in range(len(a))],
-             reduce(f, id_, a)
-           )
+    return ([reduce(f, id_, a[:i + 1])
+             for i in range(len(a))], reduce(f, id_, a))
+
 
 def paren_map(x):
     """
@@ -115,7 +148,8 @@ def paren_map(x):
     else:
         return 0
 
-def min_f(x,y):
+
+def min_f(x, y):
     """
     Returns the min of x and y. Useful for `parens_match_scan`.
     """
@@ -124,8 +158,8 @@ def min_f(x,y):
     return y
 
 
-
 #### Divide and conquer solution
+
 
 def parens_match_dc(mylist):
     """
@@ -137,7 +171,8 @@ def parens_match_dc(mylist):
     """
     # done.
     n_unmatched_left, n_unmatched_right = parens_match_dc_helper(mylist)
-    return n_unmatched_left==0 and n_unmatched_right==0
+    return n_unmatched_left == 0 and n_unmatched_right == 0
+
 
 def parens_match_dc_helper(mylist):
     """
@@ -151,16 +186,16 @@ def parens_match_dc_helper(mylist):
     ###TODO
     # Base cases
     if len(mylist) == 0:
-        return [0,0]
+        return [0, 0]
     elif len(mylist) == 1:
         if mylist[0] == '(':
-            return (0, 1) # one unmatched (
+            return (0, 1)  # one unmatched (
         elif mylist[0] == ')':
-            return (1, 0) # one unmatched )    
+            return (1, 0)  # one unmatched )
         else:
             return (0, 0)
-    i,j = parens_match_dc_helper(mylist[:len(mylist)//2])
-    k,l = parens_match_dc_helper(mylist[len(mylist)//2:])
+    i, j = parens_match_dc_helper(mylist[:len(mylist) // 2])
+    k, l = parens_match_dc_helper(mylist[len(mylist) // 2:])
     # Combination:
     # Return the tuple (R,L) using some combination of the values i,j,k,l defined above.
     # This should be done in constant time.
@@ -169,5 +204,3 @@ def parens_match_dc_helper(mylist):
     else:
         return (i + k - j, l)
     ###
-    
-
